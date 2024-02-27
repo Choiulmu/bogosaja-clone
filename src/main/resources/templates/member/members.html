@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>list</title>
+    <link rel="stylesheet" href="https://unpkg.com/mvp.css">
+    <style>
+        * {
+           margin: 0 auto;
+           text-align: center;
+        }
+    </style>
+</head>
+<body>
+<h2>회원 전제 정보</h2>
+<table>
+    <tr>
+        <th>memberEmail</th>
+        <th>memberNickname</th>
+        <th>role</th>
+        <th>like items</th>
+    </tr>
+    <tr th:each="member: ${memberList}">
+        <td th:text="${member.email}"></td>
+        <td th:text="${member.nickname}"></td>
+        <td th:text="${member.role}"></td>
+        <td>
+            <p th:each="item : ${member.likedItemNames}" th:text="${item}"></p>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

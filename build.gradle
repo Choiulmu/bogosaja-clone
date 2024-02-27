@@ -1,0 +1,124 @@
+buildscript {
+	//Add
+	ext {
+		queryDslVersion = "5.0.0"
+	}
+}
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.7.16'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	id 'com.google.cloud.tools.jib' version '3.4.0'
+
+	id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
+
+}
+
+group = 'com.TeamProject.YCtechAcademy'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	//Spring Boot
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	implementation 'org.projectlombok:lombok:1.18.22'
+	annotationProcessor 'org.projectlombok:lombok:1.18.22'
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+	implementation group: 'org.modelmapper', name: 'modelmapper', version: '2.3.9'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
+
+	//Security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	//Test
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+
+	//QueryDSL
+	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+	annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}"
+
+	//redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	//websocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	// sockjs
+	implementation 'org.webjars:sockjs-client:1.5.1'
+	// stomp
+	implementation 'org.webjars:stomp-websocket:2.3.4'
+	// gson
+	implementation 'com.google.code.gson:gson:2.9.0'
+
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+// jib 추가
+jib {
+	from {
+		image = 'openjdk:17-alpine'
+	}
+	to {
+		image = '523395038227.dkr.ecr.ap-northeast-2.amazonaws.com/bogosaja'
+		credHelper = 'ecr-login'
+		tags = ['latest']
+	}
+	container {
+		jvmFlags = ['-Xms512m']
+		format = 'OCI'
+	}
+}
+
+
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+sourceSets {
+	main.java.srcDir querydslDir
+}
+compileQuerydsl{
+	options.annotationProcessorPath = configurations.querydsl
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	querydsl.extendsFrom compileClasspath
+}
+
+
+repositories {
+	mavenCentral()
+}
+
